@@ -1,0 +1,255 @@
+# ============================================================
+#  메디 리서치 레이더 설정
+#  감시할 곳(sources), 키워드, 알림을 여기서 고칩니다.
+#  고친 뒤 `python monitor.py --dry-run` 으로 결과를 먼저 확인하세요.
+# ============================================================
+
+app:
+  url: "https://ehdbddl06001-ui.github.io/medical-research-radar/"   # 푸시 알림의 '앱에서 보기' 버튼
+  keep_days: 120     # 앱에 이 기간(또는 마감일이 이후인) 글만 남김
+  max_items: 800
+
+categories:          # push: false 로 바꾸면 그 분류는 앱에만 쌓이고 푸시는 안 옴
+  research: { name: "연구·인턴", push: true }
+  ai:       { name: "AI·해커톤", push: true }
+  data:     { name: "데이터·WHO", push: true }
+
+notify:
+  pc: false          # PC 알림은 기본 끔 (핸드폰 중심)
+  phone:
+    enabled: true
+    server: "https://ntfy.sh"
+    topic: ""        # GitHub 에서는 비밀값 NTFY_TOPIC 을 사용 (여기는 비워 두기)
+  max_per_run: 10
+
+# filter: true 인 소스에서 소스 전용 include 가 없을 때 쓰는 공통 키워드
+keywords:
+  include: [의사과학자, 의과학, 연구, 학부생, 학생인턴, 인턴, 서브인턴, 메타분석, 체계적 문헌고찰,
+            문헌고찰, 코크란, 워크숍, 워크샵, 연수, 교육생, 프로그램, 펠로우, 장학, 공모전, 빅데이터,
+            데이터, 인공지능, AI, 디지털, 바이오헬스, 인재, Research, SMERF, 해커톤, 경진대회]
+  exclude: [학위논문, 생활관, 건강검진, 대의원, 탁구장, 졸업 및 수료, 연구윤리 교육 이수,
+            안전환경교육, 압수수색, 학자금대출, 직원 채용]
+
+# 공통으로 쓰는 단어 묶음 (YAML 앵커)
+_med: &MED [의료, 의학, 의과, 의대, 의사, 병원, 헬스, 바이오, 생명, 보건, 임상, 신약, 메디, 진단, 질환]
+_med_en: &MED_EN [health, medical, medicine, clinical, biomedical, healthcare, hospital, patient,
+                  disease, radiology, patholog, imaging, genom, drug, biolog, ehr, mimic]
+
+sources:
+  # ==================================================== 연구·인턴 (research)
+  - name: 한국코크란
+    category: research
+    type: html
+    url: "https://www.koreacochrane.co.kr/?module=Board&action=SiteBoard&sMode=SELECT_FORM&iBrdNo=14"
+    item: "a[href*='VIEW_FORM'][href*='iBrdNo=14']"
+    id_regex: "iBrdContNo=(\\d+)"
+    link: "https://www.koreacochrane.co.kr/?module=Board&action=SiteBoard&sMode=VIEW_FORM&iBrdNo=14&iBrdContNo={id}&sBrdContRe=0"
+
+  - name: 의협 교육센터
+    category: research
+    type: html
+    url: "https://edu.kma.org/community/notice_list"
+    item: "table tr"
+    title: "td a"
+    id_regex: "viewer\\((\\d+)\\)"
+    link: "https://edu.kma.org/community/notice_view?nidx={id}"
+    filter: true      # 의사 보수교육 행정 공지는 빼고 교육·프로그램 모집만
+    include: [모집, 프로그램, 워크숍, 워크샵, 강좌, 과정, 연구, 학생, 세미나]
+    exclude: [지침, 심사일정, 회비, 환불, 구비서류, 공정경쟁규약, 인정심의, 연수교육기관]
+
+  - name: 대한의사협회
+    category: research
+    type: html
+    url: "https://www.kma.org/notice/sub2.asp"
+    item: "table tr"
+    title: "td.a_left"
+    id_regex: "viewer\\((\\d+)"
+    link: "https://www.kma.org/notice/sub2_view.asp?nnidx={id}"
+    filter: true
+
+  - name: 서울대 의대
+    category: research
+    type: html
+    url: "https://medicine.snu.ac.kr/fnt/nac/selectNoticeList.do?bbsId=BBSMSTR_000000000001"
+    item: "ul.notice_list li:not(.thead)"
+    title: ".subject"
+    date: ".date"
+    id_regex: "goToDetail\\('(\\d+)'"
+    link: "https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMSTR_000000000001&nttId={id}"
+    filter: true
+
+  - name: 보건산업진흥원
+    category: research
+    type: html
+    url: "https://www.khidi.or.kr/board?menuId=MENU01108&siteId=SITE00002"
+    item: "table tr"
+    title: "td.ellipsis a"
+    id_regex: "linkId=(\\d+)"
+    link: "https://www.khidi.or.kr/board/view?linkId={id}&menuId=MENU01108"
+    filter: true
+    include: [의사과학자, 인재, 연수생, 교육생, 연구자, 인턴, 학생, 해커톤, 경진대회, AI, 인공지능, 데이터]
+
+  - name: 뉴스·연구기회
+    category: research
+    type: google_news
+    queries: ["의사과학자", "의대생 모집", "의대생 공모전", "의과학 인턴", "학부생 연구 인턴십 의과대학",
+              "메타분석 교육", "문헌고찰 워크숍", "근거기반의학 교육"]
+    days: 14
+    require: [모집, 공고, 선발, 접수, 신청, 참가자, 연수생, 교육생, 워크숍, 워크샵, 교육 개최, 공모, 캠프, 스쿨]
+    exclude: [의대 신설, 정원, 수시, 정시, 입시, 군복무, 파업, 전공의 복귀, 최고위, 최고경영자]
+    filter: true
+    include: [의사과학자, 의대, 의과, 의학, 의료, 메타분석, 문헌고찰, 근거기반, 코크란, 임상, 바이오]
+
+  # ==================================================== AI·해커톤 (ai)
+  - name: 대한의료인공지능학회
+    category: ai
+    type: html
+    url: "https://www.kosaim.org/?pmode=BBBS0007100001"
+    item: "a[href*='BBBS0007100001'][href*='smode=view']"
+    id_regex: "seq=(\\d+)"
+    link: "https://www.kosaim.org/?pmode=BBBS0007100001"
+
+  - name: 위비티 공모전
+    category: ai
+    type: html
+    urls:
+      - "https://www.wevity.com/?c=find&s=1&gub=1&cidx=22"   # 과학/공학
+      - "https://www.wevity.com/?c=find&s=1&gub=1&cidx=20"   # 웹/모바일/IT
+      - "https://www.wevity.com/?c=find&s=1&gub=1&cidx=3"    # 논문/리포트
+    item: "ul.list li"
+    title: ".tit a"
+    drop: "span.stat"
+    org: ".organ"
+    deadline: ".day"
+    id_regex: "ix=(\\d+)"
+    link: "https://www.wevity.com/?c=find&s=1&gub=1&gbn=view&ix={id}"
+    filter: true
+    include: [의료, 의학, 헬스, 바이오, 생명, 보건, 임상, 신약, 진단, 질환, 빅데이터, 데이터 분석,
+              DATA·AI, 분석 경진]
+    exclude: [광고, 설화, 동화, 신학, 교정의 신, 웹툰, 캐릭터, 성평등]
+
+  - name: Devpost 헬스 해커톤
+    category: ai
+    type: json
+    urls:
+      - "https://devpost.com/api/hackathons?search=health&status[]=upcoming&status[]=open"
+      - "https://devpost.com/api/hackathons?search=medical&status[]=upcoming&status[]=open"
+      - "https://devpost.com/api/hackathons?search=healthcare%20AI&status[]=upcoming&status[]=open"
+    items: hackathons
+    id: "{id}"
+    title: "{title}"
+    link: "{url}"
+    extra: "{organization_name} · {submission_period_dates} · {themes}"
+    deadline_field: submission_period_dates
+    filter: true
+    include: *MED_EN
+
+  - name: Grand Challenge
+    category: ai
+    type: json
+    url: "https://grand-challenge.org/api/v1/challenges/?limit=1000"
+    items: results
+    id: "{slug}"
+    title: "{title}"
+    title_fallback: "{slug}"
+    link: "{url}"
+    extra: "의료영상 AI 챌린지 · {status} · {description}"
+    deadline_field: end_date
+    only_future: true          # 마감이 남은 챌린지만 (끝났거나 기한 없는 것 제외)
+
+  - name: GitHub 의료 AI
+    category: ai
+    type: json
+    urls:   # 최근 30일 안에 만들어진 별 30개 이상 저장소
+      - "https://api.github.com/search/repositories?q=medical+AI+created:%3E{since:30}+stars:%3E%3D30&sort=stars&per_page=30"
+      - "https://api.github.com/search/repositories?q=topic:medical-imaging+created:%3E{since:30}+stars:%3E%3D20&sort=stars&per_page=30"
+      - "https://api.github.com/search/repositories?q=healthcare+LLM+created:%3E{since:30}+stars:%3E%3D30&sort=stars&per_page=30"
+    items: items
+    id: "{full_name}"
+    title: "{full_name}"
+    link: "{html_url}"
+    extra: "★{stargazers_count} · {description}"
+
+  - name: MONAI 릴리스
+    category: ai
+    type: rss
+    url: "https://github.com/Project-MONAI/MONAI/releases.atom"
+    max_age_days: 120
+
+  - name: 뉴스·AI해커톤
+    category: ai
+    type: google_news
+    queries: ["의료 AI 해커톤", "헬스케어 해커톤", "의료 인공지능 경진대회", "보건의료 데이터 해커톤",
+              "의료 AI 교육 모집", "AI 경진대회 의료", "데이콘 의료"]
+    days: 14
+    require: [모집, 공고, 선발, 접수, 신청, 참가자, 교육생, 개최, 공모, 해커톤, 경진대회, 프롬프톤]
+    exclude: [성료, 수상, 시상, 입상, 달성, 최우수상, 대상 수상, 의대 신설, 최고위, 석사과정, 신입생,
+              결선, 내부, 발표]
+    filter: true
+    include: *MED
+
+  # ==================================================== 데이터·WHO (data)
+  - name: WHO 질병발생소식
+    category: data
+    type: json
+    url: "https://www.who.int/api/news/diseaseoutbreaknews?$top=20&$orderby=PublicationDateAndTime%20desc"
+    items: value
+    id: "{UrlName}"
+    title: "{Title}"
+    link: "https://www.who.int/emergencies/disease-outbreak-news/item/{UrlName}"
+    date_field: PublicationDateAndTime
+    extra: "Disease Outbreak News"
+    max_age_days: 60
+
+  - name: WHO 뉴스(데이터·보고서)
+    category: data
+    type: rss
+    url: "https://www.who.int/rss-feeds/news-english.xml"
+    max_age_days: 60
+    filter: true
+    include: [data, dataset, statistic, report, estimate, dashboard, database, survey, atlas, tracker,
+              index, guideline, artificial intelligence, " AI ", digital health, surveillance]
+
+  - name: WHO GHO 새 지표
+    category: data
+    type: json
+    url: "https://ghoapi.azureedge.net/api/Indicator"
+    items: value
+    id: "{IndicatorCode}"
+    title: "새 지표: {IndicatorName}"
+    link: "https://www.who.int/data/gho/data/indicators"
+    extra: "GHO 코드 {IndicatorCode} · API: ghoapi.azureedge.net/api/{IndicatorCode}"
+    show_baseline: false       # 기존 3,000여 개는 숨기고 새로 생긴 지표만
+
+  - name: PhysioNet 새 데이터
+    category: data
+    type: json
+    url: "https://physionet.org/api/v1/project/published/"
+    id: "{slug}-{version}"
+    title: "{title} (v{version})"
+    link: "https://physionet.org/content/{slug}/{version}/"
+    extra: "{short_description}"
+    show_baseline: false       # 기존 700여 개는 숨기고 새 데이터·새 버전만
+
+  - name: AI Hub 공지
+    category: data
+    type: html
+    url: "https://www.aihub.or.kr/aihubnews/notice/list.do?currMenu=132&topMenu=103"
+    item: "table tbody tr"
+    title: "td.subject a"
+    id_regex: "data-key=\"(\\d+)\""
+    link: "https://www.aihub.or.kr/aihubnews/notice/view.do?currMenu=132&topMenu=103&nttSn={id}"
+
+  - name: 뉴스·의료데이터
+    category: data
+    type: google_news
+    queries: ["보건의료 데이터 공개", "의료 데이터셋 공개", "보건의료빅데이터 개방", "국가통합바이오빅데이터"]
+    days: 14
+    require: [데이터, 빅데이터, 오픈소스]
+    filter: true
+    include: [공개, 개방, 제공, 오픈소스]
+    exclude: [솔루션, 사례, 포럼, 수탁기관]
+
+# ------------------------------------------------------------
+# 새 소스 추가는 README.md 참고 (html / rss / json / google_news)
+# ------------------------------------------------------------

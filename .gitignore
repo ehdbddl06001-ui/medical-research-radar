@@ -1,0 +1,6 @@
+__pycache__/
+data/monitor.log
+data/*.tmp
+data/공고목록.html
+.claude/
+.ntfy_topic

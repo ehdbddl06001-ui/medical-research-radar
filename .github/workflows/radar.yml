@@ -1,0 +1,51 @@
+# 3시간마다 사이트를 확인 → 앱 데이터 갱신 → 핸드폰 푸시 → GitHub Pages(앱) 배포
+name: radar
+on:
+  schedule:
+    - cron: "17 */3 * * *"      # UTC 기준 3시간마다 (한국 시간 0:17, 3:17, 6:17 …)
+  workflow_dispatch:            # Actions 탭에서 수동 실행
+  push:
+    branches: [main]
+    paths: ["docs/**", "config.yaml", "monitor.py", ".github/workflows/radar.yml"]
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: radar
+  cancel-in-progress: false
+jobs:
+  collect-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 수집
+        run: python monitor.py
+        env:
+          TZ: Asia/Seoul
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: 확인 기록 저장
+        run: |
+          git config user.name "medradar-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/seen.json docs/data/items.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M')"
+            git pull --rebase --autostash
+            git push
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4
