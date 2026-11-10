@@ -1,0 +1,302 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//medradar//deadlines//KO
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:메디 리서치 레이더 마감
+X-WR-TIMEZONE:Asia/Seoul
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VEVENT
+UID:43b69f1654c95a00933e@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261110
+DTEND;VALUE=DATE:20261111
+SUMMARY:마감 · DATANOVA 2026 GLOBAL DATA-THON
+DESCRIPTION:Devpost 헬스 해커톤\nhttps://datanova-2026-global-data-t
+ hon.devpost.com/
+URL:https://datanova-2026-global-data-thon.devpost.com/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0f19dae46d464a44d215@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261110
+DTEND;VALUE=DATE:20261111
+SUMMARY:마감 · 2026 DATA·AI 분석 경진대회
+DESCRIPTION:위비티 공모전\nhttps://www.wevity.com/?c=find&s=1&gub=1
+ &gbn=view&ix=110023
+URL:https://www.wevity.com/?c=find&s=1&gub=1&gbn=view&ix=110023
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d5fedb2c88afc18269e5@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:마감 · CLEAR-EC
+DESCRIPTION:Grand Challenge\nhttps://clear-ec.grand-challenge.org/
+URL:https://clear-ec.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:9f28b60e91318d766bd2@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261118
+DTEND;VALUE=DATE:20261119
+SUMMARY:마감 · 2027년 융합형 의사과학자 양성 사업(대학
+ 원과정) 공고('26.11.18.(수)\, 15시 제출 마감)
+DESCRIPTION:보건산업진흥원\nhttps://www.khidi.or.kr/board/view?lin
+ kId=48951045&menuId=MENU01108
+URL:https://www.khidi.or.kr/board/view?linkId=48951045&menuId=MENU01108
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:dd1e8f9e34480ede3dd9@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261122
+DTEND;VALUE=DATE:20261123
+SUMMARY:마감 · 「2026 다전공 수기 공모전」프로그램 홍
+ 보 협조 요청 (제출기한: ~11/22(일))
+DESCRIPTION:서울대 의대\nhttps://medicine.snu.ac.kr/fnt/nac/selectNo
+ ticeDetail.do?bbsId=BBSMSTR_000000000001&nttId=31737
+URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
+ R_000000000001&nttId=31737
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:c71063a5b08e542c797c@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261125
+DTEND;VALUE=DATE:20261126
+SUMMARY:마감 · HackWithAditya
+DESCRIPTION:Devpost 헬스 해커톤\nhttps://hackwithaditya.devpost.com/
+URL:https://hackwithaditya.devpost.com/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cb7c8d40b503ca03738a@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261129
+DTEND;VALUE=DATE:20261130
+SUMMARY:마감 · 학부+대학원:「SNU Commons 중앙도서관 융합 
+ 미디어 작품 공모전(제2회)」개최 안내(공모기간:~11/29
+ 까지)
+DESCRIPTION:서울대 의대\nhttps://medicine.snu.ac.kr/fnt/nac/selectNo
+ ticeDetail.do?bbsId=BBSMSTR_000000000001&nttId=31916
+URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
+ R_000000000001&nttId=31916
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:137b5026f0c2145246e3@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+SUMMARY:마감 · Light My Cells 2 : Transmitted Light to Fluorescence Ch
+ allenge
+DESCRIPTION:Grand Challenge\nhttps://lightmycells2.grand-challenge.org/
+URL:https://lightmycells2.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:fe1c9c0cac38840d4bca@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261204
+DTEND;VALUE=DATE:20261205
+SUMMARY:마감 · AI for Medicine: A Global Student Hackathon on the Futu
+ re of Care
+DESCRIPTION:Devpost 헬스 해커톤\nhttps://ai-for-medicine.devpost.com
+ /
+URL:https://ai-for-medicine.devpost.com/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:dbad09d004d84a213670@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261207
+DTEND;VALUE=DATE:20261208
+SUMMARY:마감 · Observing What Models Learn
+DESCRIPTION:Grand Challenge\nhttps://owl.grand-challenge.org/
+URL:https://owl.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:5d44a2b1afce5ad8e9e0@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261230
+DTEND;VALUE=DATE:20261231
+SUMMARY:마감 · TrackRad: Real-time tumor tracking for MRI-guided radio
+ therapy
+DESCRIPTION:Grand Challenge\nhttps://trackrad2025.grand-challenge.org/
+URL:https://trackrad2025.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ac93eda36c16cbc1f7d8@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261231
+DTEND;VALUE=DATE:20270101
+SUMMARY:마감 · Ischemic Stroke Lesion Segmentation Challenge 2024
+DESCRIPTION:Grand Challenge\nhttps://isles-24.grand-challenge.org/
+URL:https://isles-24.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:d31f993de51c81d5de5f@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261231
+DTEND;VALUE=DATE:20270101
+SUMMARY:마감 · Lung Nodule Volumetry 2026 Challenge
+DESCRIPTION:Grand Challenge\nhttps://lunovo26.grand-challenge.org/
+URL:https://lunovo26.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:aea0dd6a3851c704f34e@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20261231
+DTEND;VALUE=DATE:20270101
+SUMMARY:마감 · TopBrain Segmentation Challenge Version 2
+DESCRIPTION:Grand Challenge\nhttps://topbrain2026.grand-challenge.org/
+URL:https://topbrain2026.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:2e7ecd62b4ba74fc04d6@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20270215
+DTEND;VALUE=DATE:20270216
+SUMMARY:마감 · Cone-beam CT reconstruction for radiation therapy chall
+ enge
+DESCRIPTION:Grand Challenge\nhttps://cobra2026.grand-challenge.org/
+URL:https://cobra2026.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:a18485bd45eb98f7cdea@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20270413
+DTEND;VALUE=DATE:20270414
+SUMMARY:마감 · PANTHER Challenge
+DESCRIPTION:Grand Challenge\nhttps://panther.grand-challenge.org/
+URL:https://panther.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:72cc2dd931fd42059cff@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20270626
+DTEND;VALUE=DATE:20270627
+SUMMARY:마감 · PhysTech 2027: Physical Activity and Technology Hack Da
+ y
+DESCRIPTION:Devpost 헬스 해커톤\nhttps://phystech2027.devpost.com/
+URL:https://phystech2027.devpost.com/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:37f33579172171295857@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20271231
+DTEND;VALUE=DATE:20280101
+SUMMARY:마감 · SPIDER
+DESCRIPTION:Grand Challenge\nhttps://spider.grand-challenge.org/
+URL:https://spider.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:07ea84b4c90873e03480@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20280101
+DTEND;VALUE=DATE:20280102
+SUMMARY:마감 · STOIC2021 - COVID-19 AI Challenge
+DESCRIPTION:Grand Challenge\nhttps://stoic2021.grand-challenge.org/
+URL:https://stoic2021.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:10e91565c6d21bb1f6d1@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20280316
+DTEND;VALUE=DATE:20280317
+SUMMARY:마감 · Robust Non-rigid Registration Challenge for Expansion M
+ icroscopy
+DESCRIPTION:Grand Challenge\nhttps://rnr-exm.grand-challenge.org/
+URL:https://rnr-exm.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:10d1ef3d3bab05263399@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20280920
+DTEND;VALUE=DATE:20280921
+SUMMARY:마감 · SynthRAD2023
+DESCRIPTION:Grand Challenge\nhttps://synthrad2023.grand-challenge.org/
+URL:https://synthrad2023.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:44a82283d3a1d25e50cf@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20280930
+DTEND;VALUE=DATE:20281001
+SUMMARY:마감 · ToothFairy2: Multi-Structure Segmentation in CBCT Volum
+ es
+DESCRIPTION:Grand Challenge\nhttps://toothfairy2.grand-challenge.org/
+URL:https://toothfairy2.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:7a9bee067d526fb0a437@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20300316
+DTEND;VALUE=DATE:20300317
+SUMMARY:마감 · SynthRAD2025
+DESCRIPTION:Grand Challenge\nhttps://synthrad2025.grand-challenge.org/
+URL:https://synthrad2025.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:0c1b37815b4c2089d6ea@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20300401
+DTEND;VALUE=DATE:20300402
+SUMMARY:마감 · PUMA: Panoptic segmentation of nUclei and tissue in Mel
+ anomA
+DESCRIPTION:Grand Challenge\nhttps://puma.grand-challenge.org/
+URL:https://puma.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:89d48b95f54864c27bf3@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20301231
+DTEND;VALUE=DATE:20310101
+SUMMARY:마감 · ToothFairy3: Multi-Class Segmentation in CBCT Volumes
+DESCRIPTION:Grand Challenge\nhttps://toothfairy3.grand-challenge.org/
+URL:https://toothfairy3.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:cd1561d3a4393e0b37b8@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20331015
+DTEND;VALUE=DATE:20331016
+SUMMARY:마감 · Foundation Model Prompting for Medical Image Classifica
+ tion
+DESCRIPTION:Grand Challenge\nhttps://medfm2023.grand-challenge.org/
+URL:https://medfm2023.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:e827d1839c09edcb65be@medradar
+DTSTAMP:20261109T182633Z
+DTSTART;VALUE=DATE:20601231
+DTEND;VALUE=DATE:20610101
+SUMMARY:마감 · Multi-Modality Abdominal Multi-Organ Segmentation Chall
+ enge 2022
+DESCRIPTION:Grand Challenge\nhttps://amos22.grand-challenge.org/
+URL:https://amos22.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
