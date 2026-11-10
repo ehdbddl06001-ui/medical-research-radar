@@ -21,6 +21,48 @@ notify:
     server: "https://ntfy.sh"
     topic: ""        # GitHub 에서는 비밀값 NTFY_TOPIC 을 사용 (여기는 비워 두기)
   max_per_run: 10
+  digest: { enabled: true, weekday: 0, hour: 7 }   # 월요일(0) 7시 이후 첫 실행에 '이번 주 마감' 요약 푸시 한 번
+
+# ------------------------------------------------------------
+# 맞춤 점수 — 제목·기관·설명에 들어간 말로 더하고 뺀다 (묶음 하나는 한 번만 센다)
+#   · star 점 이상  → 앱에 ★ 맞춤, 푸시 제목 앞 ★ (우선순위 높음)
+#   · min_push 미만 → 푸시하지 않고 앱에만 쌓임 ('대상 아님' 묶음이 음수라 기업·전문의 대상 공고가 여기 걸린다)
+#   · 고친 뒤:  python monitor.py --rescore   (수집 없이 점수만 다시 — 몇 건이 ★·대상 아님인지 출력)
+#   영문·숫자만 있는 말(AI, ECG)은 낱말 단위로, 한글은 포함 여부로 찾는다.
+# ------------------------------------------------------------
+interests:
+  star: 4
+  min_push: 0
+  groups:
+    - name: 학생 대상
+      weight: 4
+      words: [의대생, 의과대학생, 의학과 학생, 학부생, 학생연구, 학생 연구, 대학생, 서포터즈, 예비의료인,
+              학사만, 학부 인턴, 학생인턴, 서브인턴, undergraduate, medical student, student, students]
+    - name: 연구 방법
+      weight: 4
+      words: [메타분석, 문헌고찰, 코크란, 근거기반, 자료분석, 논문출간, 논문 작성, 연구방법, 통계, 임상연구,
+              meta-analysis, systematic review, biostatistics]
+    - name: 의사과학자
+      weight: 3
+      words: [의사과학자, 의과학자, 의과학, 융합형, physician-scientist, MD-PhD]
+    - name: 심장·심전도
+      weight: 3
+      words: [심전도, 부정맥, 심장, 심혈관, 혈압, 심폐소생, ECG, EKG, arrhythmia, cardiac, cardiology, cardiovascular]
+    - name: 감염·내성
+      weight: 3
+      words: [항생제, 내성, 감염병, 패혈증, 병원체, antimicrobial, antibiotic, AMR, sepsis, pathogen]
+    - name: 의료 AI
+      weight: 2
+      words: [의료 AI, 의료AI, 의료인공지능, 의료 인공지능, 인공지능, 머신러닝, 딥러닝, 디지털 트윈, 설명가능,
+              LLM, machine learning, deep learning, digital twin, explainable, foundation model]
+    - name: 대회·데이터
+      weight: 1
+      words: [해커톤, 경진대회, 챌린지, 데이터톤, 공모전, hackathon, challenge, datathon, dataset]
+    - name: 대상 아님
+      weight: -6
+      words: [희망기업, 기업 모집, 참여기업, 투자유치, IR 피칭, 전시관, 박람회, 박사과정, 석사과정, 전공의 대상,
+              전문의 대상, 교수 초빙, 채용, 환불, 영수증, 등록비, 외국인장학생, GKS, 국가인재DB, 참여기관 모집,
+              양성기관, 수탁기관, 입찰, 용역]
 
 # filter: true 인 소스에서 소스 전용 include 가 없을 때 쓰는 공통 키워드
 keywords:
@@ -53,6 +95,7 @@ sources:
     title: "td a"
     id_regex: "viewer\\((\\d+)\\)"
     link: "https://edu.kma.org/community/notice_view?nidx={id}"
+    ci_skip: true     # 해외 서버(GitHub Actions) 접속을 막는다(계속 ConnectTimeout) — PC 에서 돌릴 때만 확인
     filter: true      # 의사 보수교육 행정 공지는 빼고 교육·프로그램 모집만
     include: [모집, 프로그램, 워크숍, 워크샵, 강좌, 과정, 연구, 학생, 세미나]
     exclude: [지침, 심사일정, 회비, 환불, 구비서류, 공정경쟁규약, 인정심의, 연수교육기관]
@@ -65,6 +108,7 @@ sources:
     title: "td.a_left"
     id_regex: "viewer\\((\\d+)"
     link: "https://www.kma.org/notice/sub2_view.asp?nnidx={id}"
+    ci_skip: true     # 위와 같음
     filter: true
 
   - name: 서울대 의대

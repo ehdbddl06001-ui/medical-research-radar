@@ -11,12 +11,16 @@ config.yaml 에 적힌 게시판·API·뉴스를 확인해서
   python monitor.py --only 위비티    # 특정 소스만 (이름 일부)
   python monitor.py --test          # 테스트 푸시
   python monitor.py --setup-phone   # ntfy 토픽 생성
+  python monitor.py --rescore       # 수집 없이 맞춤 점수·앱 데이터·캘린더만 다시 (config 의 interests 를 고친 뒤)
+
+시험:  python -m unittest discover -s tests   (인터넷 없이 날짜·점수·캘린더 규칙만)
 """
 from __future__ import annotations
 
 import argparse
 import base64
 import datetime as dt
+import hashlib
 import html
 import json
 import logging
@@ -25,6 +29,7 @@ import re
 import secrets
 import subprocess
 import sys
+import time
 import urllib.parse
 from email.utils import parsedate_to_datetime
 from pathlib import Path
@@ -39,6 +44,7 @@ STATE_DIR = BASE / "data"
 SEEN_FILE = STATE_DIR / "seen.json"
 LOG_FILE = STATE_DIR / "monitor.log"
 APP_DATA = BASE / "docs" / "data" / "items.json"
+ICS_FILE = BASE / "docs" / "data" / "deadlines.ics"   # 핸드폰 캘린더가 구독하는 마감 일정
 TOPIC_FILE = BASE / ".ntfy_topic"      # .gitignore 로 업로드 제외
 
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -78,15 +84,31 @@ def save_state(st: dict) -> None:
 
 
 # ================================================================== 공통 도구
+RETRY_WAITS = (0, 3, 8)     # 일시 장애(503·시간 초과)는 두 번까지 다시 — 구글 뉴스가 Actions 에서 가끔 503 을 낸다
+RETRY_STATUS = (429, 500, 502, 503, 504)
+
+
 def fetch(url: str) -> requests.Response:
     headers = {"User-Agent": UA}
     if "api.github.com" in url and os.environ.get("GITHUB_TOKEN"):
         headers["Authorization"] = "Bearer " + os.environ["GITHUB_TOKEN"]
-    r = requests.get(url, headers=headers, timeout=25)
-    r.raise_for_status()
-    if not r.encoding or r.encoding.lower() == "iso-8859-1":
-        r.encoding = r.apparent_encoding
-    return r
+    last: Exception | None = None
+    for wait in RETRY_WAITS:
+        if wait:
+            time.sleep(wait)
+        try:
+            r = requests.get(url, headers=headers, timeout=(8, 25))   # 연결 8초 · 응답 25초
+        except (requests.ConnectionError, requests.Timeout) as e:
+            last = e
+            continue
+        if r.status_code in RETRY_STATUS:
+            last = requests.HTTPError(f"{r.status_code} Server Error for url: {url}", response=r)
+            continue
+        r.raise_for_status()
+        if not r.encoding or r.encoding.lower() == "iso-8859-1":
+            r.encoding = r.apparent_encoding
+        return r
+    raise last  # type: ignore[misc]
 
 
 def clean(text) -> str:
@@ -142,6 +164,9 @@ def parse_deadline(text: str) -> str:
     m = re.search(r"'(\d\d)\.\s*(\d{1,2})\.\s*(\d{1,2})", t)            # '26.11.18.
     if m:
         return _md(int(m.group(2)), int(m.group(3)), 2000 + int(m.group(1)))
+    m = re.search(r"~\s*(20\d\d)-(\d{1,2})-(\d{1,2})", t)               # 2026-11-01 ~ 2026-11-20
+    if m:
+        return _md(int(m.group(2)), int(m.group(3)), int(m.group(1)))
     m = re.search(r"~\s*(?:(20\d\d)[./-])?(\d{1,2})[./](\d{1,2})", t)   # ~12/4, ~11.20
     if m:
         return _md(int(m.group(2)), int(m.group(3)), int(m.group(1)) if m.group(1) else None)
@@ -154,6 +179,62 @@ def parse_deadline(text: str) -> str:
     m = re.search(r"-\s*([A-Z][a-z]{2})\s+(\d{1,2}),\s*(20\d\d)", t)    # Nov 02 - Dec 15, 2026
     if m and m.group(1).lower() in MONTHS:
         return _md(MONTHS[m.group(1).lower()], int(m.group(2)), int(m.group(3)))
+    return ""
+
+
+# 본문에서 마감 읽기 — 제목에 마감이 없는 공고(연구·인턴 공고 대부분)를 '마감 임박'에 올리려는 것.
+# 틀린 날짜를 사실처럼 보여 주면 안 되므로 '접수·신청·모집 기간/마감' 같은 꼬리표 바로 뒤의 날짜만 읽고,
+# 읽은 값은 deadline_src="page"(앱에서 '추정')로 표시한다. 꼬리표가 없으면 읽지 않는다.
+PAGE_LABEL = re.compile(
+    r"(?:접수|신청|모집|지원|제출|응모|등록|참가\s*신청)\s*(?:기간|기한|마감(?:일)?|일정|일시)\s*[:：]?"
+    r"|(?:마감일|마감\s*기한|신청\s*마감|접수\s*마감)\s*[:：]?"
+    r"|(?:application|submission|registration)\s+deadline\s*[:：]?", re.I)
+PAGE_DATE = re.compile(
+    r"(?:(20\d\d)\s*[.\-/년]\s*)?(\d{1,2})\s*[.\-/월]\s*(\d{1,2})\s*일?")
+
+
+# 첫 날짜 바로 뒤에 '~ 다음 날짜' 가 이어지면 기간 — 요일·시각 표기는 건너뛴다: '11. 3.(월) 09:00 ~ 11. 21.'
+PAGE_RANGE = re.compile(r"\.?\s*(?:\([^)]{1,4}\))?\s*(?:\d{1,2}:\d{2})?\s*(?:~|∼|〜|–|—|-|부터|to)\s*", re.I)
+PAGE_STOP = re.compile(r"발표|선발 결과|교육\s*(?:기간|일시|일정)|행사\s*(?:기간|일시)|장소|문의|program\s+dates?", re.I)
+
+
+def page_deadline(text: str, posted: str = "") -> str:
+    """공고 본문 글에서 마감일(YYYY-MM-DD) 추정.
+
+    꼬리표(접수기간·신청마감 …) 바로 뒤(30자 안)에서 시작하는 첫 날짜만 읽는다. 그 날짜에 '~ 날짜' 가 이어지면
+    기간의 끝 날짜를, 아니면 그 날짜를 마감으로 본다. 꼬리표 뒤의 다른 항목(발표·교육 일시·문의 전화) 날짜는 읽지 않는다."""
+    if not text:
+        return ""
+    t = re.sub(r"\s+", " ", text)
+    lo = (TODAY - dt.timedelta(days=60)).isoformat()
+    hi = (TODAY + dt.timedelta(days=400)).isoformat()
+
+    def iso_of(d, year=None):
+        mo, dd = int(d.group(2)), int(d.group(3))
+        if not (1 <= mo <= 12 and 1 <= dd <= 31):
+            return "", year
+        year = int(d.group(1)) if d.group(1) else year
+        return _md(mo, dd, year), year
+
+    for m in PAGE_LABEL.finditer(t):
+        win = t[m.end(): m.end() + 90]
+        stop = PAGE_STOP.search(win)
+        if stop:
+            win = win[: stop.start()]
+        d1 = PAGE_DATE.search(win)
+        if not d1 or d1.start() > 30:
+            continue
+        end, year = iso_of(d1)
+        if not end:
+            continue
+        r = PAGE_RANGE.match(win, d1.end())
+        d2 = PAGE_DATE.match(win, r.end()) if r else None
+        if d2:
+            end2, _ = iso_of(d2, year)          # '2026.11.1 ~ 11.20' 의 끝 날짜는 앞 날짜의 연도를 따른다
+            if end2 and end2 >= end:
+                end = end2
+        if lo <= end <= hi and (not posted or end >= posted):
+            return end
     return ""
 
 
@@ -339,17 +420,39 @@ def similar(a: str, b: str) -> bool:
     return bool(wa and wb) and len(wa & wb) / min(len(wa), len(wb)) >= 0.5
 
 
+# ================================================================== 맞춤 점수
+def _hit(text_low: str, word: str) -> bool:
+    """영문·숫자만 있는 말(AI, ECG, AMR)은 낱말 경계로, 한글이 섞인 말은 포함 여부로 찾는다."""
+    w = word.lower().strip()
+    if not w:
+        return False
+    if re.fullmatch(r"[a-z0-9][a-z0-9 .+\-]*", w):
+        return re.search(r"(?<![a-z0-9])" + re.escape(w) + r"(?![a-z0-9])", text_low) is not None
+    return w in text_low
+
+
+def score_item(it: dict, cfg: dict) -> tuple[int, list[str]]:
+    """config 의 interests.groups 로 (점수, 걸린 묶음 이름). 한 묶음은 한 번만 센다."""
+    text = f"{it.get('title', '')} {it.get('extra', '')}".lower()
+    total, tags = 0, []
+    for g in ((cfg.get("interests") or {}).get("groups") or []):
+        if any(_hit(text, w) for w in g.get("words") or []):
+            total += int(g.get("weight", 1))
+            tags.append(g.get("name", ""))
+    return total, tags
+
+
 # ================================================================== 알림
 TAGS = {"research": ["microscope"], "ai": ["robot"], "data": ["bar_chart"]}
 
 
 def phone(cfg: dict, title: str, body: str, click: str | None = None,
-          tags=None, app_url: str | None = None) -> None:
+          tags=None, app_url: str | None = None, priority: int = 4) -> None:
     p = cfg.get("notify", {}).get("phone", {})
     if not p.get("enabled") or not p.get("topic"):
         return
     payload = {"topic": p["topic"], "title": title, "message": body,
-               "tags": tags or ["bell"], "priority": 4}
+               "tags": tags or ["bell"], "priority": priority}
     if click:
         payload["click"] = click
     if app_url:
@@ -390,14 +493,23 @@ def notify_new(cfg: dict, new: list[dict]) -> None:
     n = cfg.get("notify", {})
     cats = cfg.get("categories", {})
     app_url = (cfg.get("app", {}) or {}).get("url") or None
-    pushable = [it for it in new if cats.get(it["category"], {}).get("push", True)]
+    ins = cfg.get("interests") or {}
+    min_push, star = int(ins.get("min_push", 0)), int(ins.get("star", 4))
+    scored = [(score_item(it, cfg), it) for it in new if cats.get(it["category"], {}).get("push", True)]
+    scored = [x for x in scored if x[0][0] >= min_push]           # '대상 아님'(음수)은 앱에만 쌓고 푸시하지 않는다
+    scored.sort(key=lambda x: -x[0][0])                            # 맞춤 점수 높은 것부터(상한에 걸릴 때 먼저 나가게)
+    pushable = [it for _, it in scored]
     cap = int(n.get("max_per_run", 10))
-    for it in pushable[:cap]:
+    for (sc, tags), it in scored[:cap]:
         cname = cats.get(it["category"], {}).get("name", "")
         body = it["title"]
         if it.get("deadline"):
-            body += f"\n마감 {it['deadline']}"
-        phone(cfg, f"[{cname}] {it['source']}", body, it["link"], TAGS.get(it["category"]), app_url)
+            body += f"\n마감 {it['deadline']}" + (" (본문에서 읽음·추정)" if it.get("deadline_src") == "page" else "")
+        hot = sc >= star
+        if hot and tags:
+            body += "\n맞춤: " + " · ".join(tags)
+        phone(cfg, ("★ " if hot else "") + f"[{cname}] {it['source']}", body, it["link"],
+              (["star"] if hot else []) + (TAGS.get(it["category"]) or []), app_url, priority=4 if hot else 3)
     if len(pushable) > cap:
         phone(cfg, f"새 소식 {len(pushable) - cap}건 더", "앱에서 전체를 확인하세요.",
               app_url, ["bell"])
@@ -405,29 +517,132 @@ def notify_new(cfg: dict, new: list[dict]) -> None:
         toast(f"새 소식 {len(new)}건", " / ".join(i["title"][:25] for i in new[:3]))
 
 
+def weekly_digest(cfg: dict, st: dict, now: dt.datetime) -> bool:
+    """월요일 아침 첫 실행에 '이번 주 마감' 요약 푸시 한 번. 보냈으면 True."""
+    d = (cfg.get("notify") or {}).get("digest") or {}
+    if not d.get("enabled", True):
+        return False
+    week = f"{now.isocalendar()[0]}-W{now.isocalendar()[1]:02d}"
+    if now.weekday() != int(d.get("weekday", 0)) or now.hour < int(d.get("hour", 7)) or st.get("digest") == week:
+        return False
+    st["digest"] = week
+    end = (now.date() + dt.timedelta(days=7)).isoformat()
+    due = sorted((it for it in st["items"].values()
+                  if it.get("deadline") and now.date().isoformat() <= it["deadline"] <= end
+                  and score_item(it, cfg)[0] >= 0), key=lambda x: x["deadline"])
+    if not due:
+        return False
+    lines = [f"{it['deadline'][5:].replace('-', '/')} {it['title'][:38]}" for it in due[:6]]
+    if len(due) > 6:
+        lines.append(f"… 외 {len(due) - 6}건")
+    phone(cfg, f"이번 주 마감 {len(due)}건", "\n".join(lines), (cfg.get("app") or {}).get("url"), ["calendar"], priority=3)
+    return True
+
+
 # ================================================================== 앱 데이터
-def write_app_data(st: dict, cfg: dict) -> None:
+def _ics_text(s: str) -> str:
+    return str(s).replace("\\", "\\\\").replace(";", r"\;").replace(",", r"\,").replace("\n", r"\n")
+
+
+def _ics_fold(line: str) -> str:
+    """RFC 5545: 한 줄 75옥텟 이하 — 글자 경계에서 접는다."""
+    out, cur, size = [], "", 0
+    for ch in line:
+        n = len(ch.encode("utf-8"))
+        if size + n > 73:
+            out.append(cur)
+            cur, size = " ", 1
+        cur += ch
+        size += n
+    out.append(cur)
+    return "\r\n".join(out)
+
+
+def build_ics(items: list[dict]) -> str:
+    """마감이 남은 글을 하루짜리 일정으로. 핸드폰 캘린더에서 주소를 '구독'하면 마감이 달력에 뜬다."""
+    L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//medradar//deadlines//KO", "CALSCALE:GREGORIAN",
+         "METHOD:PUBLISH", "X-WR-CALNAME:메디 리서치 레이더 마감", "X-WR-TIMEZONE:Asia/Seoul",
+         "REFRESH-INTERVAL;VALUE=DURATION:PT6H", "X-PUBLISHED-TTL:PT6H"]
+    for it in sorted(items, key=lambda x: (x["deadline"], x["id"])):
+        day = dt.date.fromisoformat(it["deadline"])
+        seen = re.sub(r"\D", "", it.get("first_seen", ""))[:14].ljust(14, "0")
+        guess = " (추정)" if it.get("deadline_src") == "page" else ""
+        L += ["BEGIN:VEVENT",
+              "UID:" + hashlib.sha1(it["id"].encode("utf-8")).hexdigest()[:20] + "@medradar",
+              f"DTSTAMP:{seen[:8]}T{seen[8:]}Z",
+              f"DTSTART;VALUE=DATE:{day:%Y%m%d}",
+              f"DTEND;VALUE=DATE:{day + dt.timedelta(days=1):%Y%m%d}",
+              "SUMMARY:" + _ics_text(f"마감{guess} · {it['title']}"),
+              "DESCRIPTION:" + _ics_text(f"{it['source']}\n{it['link']}"),
+              "URL:" + it["link"],
+              "TRANSP:TRANSPARENT",
+              "END:VEVENT"]
+    L.append("END:VCALENDAR")
+    return "\r\n".join(_ics_fold(x) for x in L) + "\r\n"
+
+
+def app_items(st: dict, cfg: dict) -> list[dict]:
     app = cfg.get("app", {}) or {}
     keep = (TODAY - dt.timedelta(days=int(app.get("keep_days", 120)))).isoformat()
     items = []
     for key, it in st["items"].items():
         last = max(it.get("first_seen", ""), it.get("deadline") or "")
         if last >= keep:
+            sc, tags = score_item(it, cfg)           # 저장하지 않고 그때그때 계산 — config 를 고치면 옛 글 점수도 바뀐다
             items.append({k: it.get(k, "") for k in
                           ("title", "link", "source", "category", "date", "deadline", "extra",
-                           "first_seen", "baseline")} | {"id": key})
+                           "first_seen", "baseline")}
+                         | {"id": key, "score": sc, "tags": tags, "deadline_src": it.get("deadline_src", "")})
     items.sort(key=lambda x: (x["first_seen"], x["date"]), reverse=True)
-    items = items[: int(app.get("max_items", 800))]
+    return items[: int(app.get("max_items", 800))]
+
+
+def write_app_data(st: dict, cfg: dict) -> None:
+    items = app_items(st, cfg)
+    ins = cfg.get("interests") or {}
     data = {
         "updated": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+        "star": int(ins.get("star", 4)),
         "categories": [{"id": k, "name": v.get("name", k)}
                        for k, v in (cfg.get("categories") or {}).items()],
         "sources": [{"name": s["name"], "category": s.get("category", "research"),
-                     "error": st["errors"].get(s["name"], "")} for s in cfg.get("sources", [])],
+                     "error": st["errors"].get(s["name"], ""),
+                     "pc_only": bool(s.get("ci_skip"))} for s in cfg.get("sources", [])],
         "items": items,
     }
     APP_DATA.parent.mkdir(parents=True, exist_ok=True)
     APP_DATA.write_text(json.dumps(data, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    due = [it for it in items if it["deadline"] and it["deadline"] >= TODAY.isoformat() and it["score"] >= 0]
+    ICS_FILE.write_bytes(build_ics(due).encode("utf-8"))
+
+
+def fill_page_deadlines(st: dict, cfg: dict, cap: int = 12) -> int:
+    """마감이 없는 게시판 글의 본문을 열어 마감을 읽는다(실행당 cap 건, 글마다 한 번만)."""
+    by_name = {s["name"]: s for s in cfg.get("sources", [])}
+    done = 0
+    for key, it in st["items"].items():
+        if done >= cap:
+            break
+        src = by_name.get(it.get("source")) or {}
+        if it.get("deadline") or it.get("dl_checked") or src.get("type", "html") != "html" \
+                or not src.get("page_deadline", True) or it.get("category") == "data":
+            continue
+        if src.get("ci_skip") and os.environ.get("GITHUB_ACTIONS"):
+            continue
+        it["dl_checked"] = True
+        done += 1
+        try:
+            soup = BeautifulSoup(fetch(it["link"]).text, "html.parser")
+            for junk in soup(["script", "style", "nav", "header", "footer"]):
+                junk.decompose()
+            dl = page_deadline(soup.get_text(" ", strip=True), it.get("date", ""))
+        except Exception as e:
+            log.info("[본문 마감] %s 열지 못함: %s", it.get("title", "")[:30], e)
+            continue
+        if dl:
+            it["deadline"], it["deadline_src"] = dl, "page"
+            log.info("[본문 마감] %s → %s", it.get("title", "")[:40], dl)
+    return done
 
 
 # ================================================================== 실행
@@ -440,6 +655,9 @@ def run(args) -> int:
     for src in cfg.get("sources", []):
         name = src["name"]
         if args.only and args.only not in name:
+            continue
+        if src.get("ci_skip") and os.environ.get("GITHUB_ACTIONS"):
+            st["errors"].pop(name, None)      # 해외 서버를 막는 사이트 — Actions 에서는 건너뛴다(PC 에서만 확인)
             continue
         cat = src.get("category", "research")
         try:
@@ -492,9 +710,14 @@ def run(args) -> int:
 
     if args.dry_run:
         return 0
+    if not args.only:
+        fill_page_deadlines(st, cfg)          # 새 글 포함 — 푸시 전에 읽어 알림에 마감이 실리게
+    digest = weekly_digest(cfg, st, dt.datetime.now())
     save_state(st)
     write_app_data(st, cfg)
     notify_new(cfg, new_items)
+    if digest:
+        log.info("주간 마감 요약을 보냈습니다")
     log.info("새 소식 %d건", len(new_items))
     for it in new_items:
         log.info("  NEW [%s] %s  %s", it["source"], it["title"], it["link"])
@@ -536,7 +759,16 @@ def main() -> int:
     ap.add_argument("--test", action="store_true")
     ap.add_argument("--setup-phone", action="store_true")
     ap.add_argument("--notify-existing", action="store_true")
+    ap.add_argument("--rescore", action="store_true", help="수집 없이 앱 데이터·캘린더만 다시 만든다")
     args = ap.parse_args()
+    if args.rescore:
+        cfg, st = load_config(), load_state()
+        write_app_data(st, cfg)
+        items = app_items(st, cfg)
+        star = int((cfg.get("interests") or {}).get("star", 4))
+        print(f"{len(items)}건 · 맞춤(★ {star}점 이상) {sum(i['score'] >= star for i in items)}건 · "
+              f"대상 아님(음수) {sum(i['score'] < 0 for i in items)}건")
+        return 0
     if args.setup_phone:
         setup_phone()
         return 0

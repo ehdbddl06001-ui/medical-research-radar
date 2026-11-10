@@ -6,7 +6,7 @@ on:
   workflow_dispatch:            # Actions 탭에서 수동 실행
   push:
     branches: [main]
-    paths: ["docs/**", "config.yaml", "monitor.py", ".github/workflows/radar.yml"]
+    paths: ["docs/**", "config.yaml", "monitor.py", "tests/**", ".github/workflows/radar.yml"]
 permissions:
   contents: write
   pages: write
@@ -27,6 +27,10 @@ jobs:
           python-version: "3.11"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: 규칙 시험 (날짜 읽기·맞춤 점수·캘린더 — 실패하면 수집·배포를 하지 않는다)
+        run: python -m unittest discover -s tests
+        env:
+          TZ: Asia/Seoul
       - name: 수집
         run: python monitor.py
         env:
@@ -37,7 +41,7 @@ jobs:
         run: |
           git config user.name "medradar-bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/seen.json docs/data/items.json
+          git add data/seen.json docs/data/items.json docs/data/deadlines.ics
           if ! git diff --cached --quiet; then
             git commit -m "data: $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M')"
             git pull --rebase --autostash

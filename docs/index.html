@@ -69,6 +69,7 @@ h1{font-size:18px;font-weight:700;margin:0;letter-spacing:-.01em}
 .tools{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;color:var(--muted)}
 .toggle{display:flex;align-items:center;gap:6px;cursor:pointer}
 .toggle input{accent-color:var(--accent)}
+.toggles{display:flex;gap:14px;flex-wrap:wrap;justify-content:flex-end}
 
 main{padding-block:6px 24px}
 .sec{font-size:12px;font-weight:500;color:var(--muted);letter-spacing:.04em;margin:18px 2px 8px}
@@ -84,6 +85,15 @@ main{padding-block:6px 24px}
 .title{font-weight:500;line-height:1.45;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all;overflow-wrap:anywhere}
 .extra{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card.read .title{color:var(--muted);font-weight:400}
+.fit{font:500 10px var(--f-mono);color:#9a6b00;background:#fff3cf;border-radius:4px;padding:0 5px;letter-spacing:.02em}
+.tags{font-size:11px;color:var(--c-research);font-weight:500}
+.tags.off{color:var(--muted);font-weight:400}
+.card.off{opacity:.55}
+.dd.guess{border:1px dashed currentColor;background:transparent}
+.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;border-radius:8px;padding:8px 14px;font-size:14px;font-weight:500}
+.srcs .st.pc{color:var(--muted)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .fit{color:#f3bf6b;background:#33291a}}
+:root[data-theme="dark"] .fit{color:#f3bf6b;background:#33291a}
 .side{grid-column:2;grid-row:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;gap:8px}
 .dd{font:500 12px var(--f-mono);padding:2px 7px;border-radius:6px;background:var(--bg);color:var(--muted);white-space:nowrap}
 .dd.soon{background:var(--soon-bg);color:var(--soon)}
@@ -138,7 +148,10 @@ nav .badge{position:absolute;top:8px;left:calc(50% + 6px);min-width:16px;height:
     <div class="chips" id="chips" role="group" aria-label="분류"></div>
     <div class="tools" id="tools">
       <span id="count"></span>
-      <label class="toggle"><input type="checkbox" id="hidePast" checked> 마감 지난 글 숨기기</label>
+      <span class="toggles">
+        <label class="toggle"><input type="checkbox" id="onlyFit"> ★ 맞춤만</label>
+        <label class="toggle"><input type="checkbox" id="hidePast" checked> 마감 지난 글 숨기기</label>
+      </span>
     </div>
     <div id="banner"></div>
   </div>
