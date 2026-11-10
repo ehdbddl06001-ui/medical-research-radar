@@ -163,6 +163,19 @@ URL:https://topbrain2026.grand-challenge.org/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:992ebd8e731059f83e5b@medradar
+DTSTAMP:20261110T161954Z
+DTSTART;VALUE=DATE:20270115
+DTEND;VALUE=DATE:20270116
+SUMMARY:마감 (추정) · 2027-2028 이스라엘 정부초청 장학생 
+ 선발 안내
+DESCRIPTION:서울대 의대\nhttps://medicine.snu.ac.kr/fnt/nac/selectNo
+ ticeDetail.do?bbsId=BBSMSTR_000000000001&nttId=31936
+URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
+ R_000000000001&nttId=31936
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:2e7ecd62b4ba74fc04d6@medradar
 DTSTAMP:20261109T182633Z
 DTSTART;VALUE=DATE:20270215
