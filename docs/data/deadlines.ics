@@ -53,6 +53,20 @@ URL:https://hackwithaditya.devpost.com/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:2e99f29b3622d7c38d2c@medradar
+DTSTAMP:20261112T201317Z
+DTSTART;VALUE=DATE:20261125
+DTEND;VALUE=DATE:20261126
+SUMMARY:마감 (추정) · 2026년 바이오헬스 핵심인재 글로벌
+  브릿지 연수프로그램(KHIDI-Stanford Biodesign) 연수생 모집
+  안내
+DESCRIPTION:서울대 의대\nhttps://medicine.snu.ac.kr/fnt/nac/selectNo
+ ticeDetail.do?bbsId=BBSMSTR_000000000001&nttId=32066
+URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
+ R_000000000001&nttId=32066
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:cb7c8d40b503ca03738a@medradar
 DTSTAMP:20261109T182633Z
 DTSTART;VALUE=DATE:20261129
