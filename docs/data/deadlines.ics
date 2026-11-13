@@ -43,6 +43,19 @@ URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:869391ba9056a64bb2b8@medradar
+DTSTAMP:20261113T195945Z
+DTSTART;VALUE=DATE:20261123
+DTEND;VALUE=DATE:20261124
+SUMMARY:마감 · 융합과학기술대학원 2026학년도 동계 융합
+ 연구프로그램 안내(접수기한: ~11.23.(월)까지)
+DESCRIPTION:서울대 의대\nhttps://medicine.snu.ac.kr/fnt/nac/selectNo
+ ticeDetail.do?bbsId=BBSMSTR_000000000001&nttId=32083
+URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
+ R_000000000001&nttId=32083
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:c71063a5b08e542c797c@medradar
 DTSTAMP:20261109T182633Z
 DTSTART;VALUE=DATE:20261125
