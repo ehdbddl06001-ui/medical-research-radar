@@ -105,6 +105,20 @@ URL:https://owl.grand-challenge.org/
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:2d87f539f0268bba100c@medradar
+DTSTAMP:20261119T113507Z
+DTSTART;VALUE=DATE:20261218
+DTEND;VALUE=DATE:20261219
+SUMMARY:마감 · 연세의대 데이터 인텔리전스 기반 통합 
+ 질병 연구센터(MRC) 2027년 겨울 인턴쉽 안내(신청마감:~1
+ 2/18까지)
+DESCRIPTION:서울대 의대\nhttps://medicine.snu.ac.kr/fnt/nac/selectNo
+ ticeDetail.do?bbsId=BBSMSTR_000000000001&nttId=32113
+URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
+ R_000000000001&nttId=32113
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:5d44a2b1afce5ad8e9e0@medradar
 DTSTAMP:20261109T182633Z
 DTSTART;VALUE=DATE:20261230
