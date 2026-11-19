@@ -72,6 +72,16 @@ URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:7301753a6f96b22c1f18@medradar
+DTSTAMP:20261120T053832Z
+DTSTART;VALUE=DATE:20261130
+DTEND;VALUE=DATE:20261201
+SUMMARY:마감 · SSL for 3D light-sheet microscopy image segmentation
+DESCRIPTION:Grand Challenge\nhttps://selma3d2026.grand-challenge.org/
+URL:https://selma3d2026.grand-challenge.org/
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:137b5026f0c2145246e3@medradar
 DTSTAMP:20261109T182633Z
 DTSTART;VALUE=DATE:20261130
