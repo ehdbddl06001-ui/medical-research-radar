@@ -117,6 +117,32 @@ URL:https://news.google.com/rss/articles/CBMiZEFVX3lxTE53Y3A1ZXRtZnJpdHps
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:0c878cedbcb647bfcc86@medradar
+DTSTAMP:20261123T214412Z
+DTSTART;VALUE=DATE:20261211
+DTEND;VALUE=DATE:20261212
+SUMMARY:마감 · 2027학년도 1학기 학부생 교내장학금 신청 
+ 안내(교외장학금 수혜 희망자 필수)(~12/11 18시)
+DESCRIPTION:서울대 의대\nhttps://medicine.snu.ac.kr/fnt/nac/selectNo
+ ticeDetail.do?bbsId=BBSMSTR_000000000001&nttId=32127
+URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
+ R_000000000001&nttId=32127
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:677b304a8297f195c040@medradar
+DTSTAMP:20261123T214412Z
+DTSTART;VALUE=DATE:20261211
+DTEND;VALUE=DATE:20261212
+SUMMARY:마감 (추정) · 2027학년도 1학기 대학원생 교내장
+ 학금 신청 안내
+DESCRIPTION:서울대 의대\nhttps://medicine.snu.ac.kr/fnt/nac/selectNo
+ ticeDetail.do?bbsId=BBSMSTR_000000000001&nttId=32133
+URL:https://medicine.snu.ac.kr/fnt/nac/selectNoticeDetail.do?bbsId=BBSMST
+ R_000000000001&nttId=32133
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:2d87f539f0268bba100c@medradar
 DTSTAMP:20261119T113507Z
 DTSTART;VALUE=DATE:20261218
